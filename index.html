@@ -19,6 +19,33 @@
       messagingSenderId: "710447679757"
     };
     firebase.initializeApp(config);
+
+var firebaseRef = new Firebase('https://insy341app.firebaseio.com/path' );
+
+var data;
+firebaseRef.on('value',
+  // here we define a function that will be called
+  // every time the database changes, or the page loads
+  function(snapshot){
+    data = snapshot.val();
+    // now the global variable data is the content of path
+    console.log(data);
+  }
+)
+
+locations = [
+  {
+    'Address' : "234 Fake St.",
+    'Name' : "Tokyo"
+  }
+
+  {
+    'Address' : "6969 Lit Ave.",
+    'Name' : 'Apartment 7000'
+  }
+];
+firebaseRef.set(locations)
+
   </script>
 
 
