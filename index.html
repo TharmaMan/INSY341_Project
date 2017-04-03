@@ -4,51 +4,101 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Maps Web App</title>
+  <script src="https://cdn.firebase.com/js/client/2.2.7/firebase.js"></script>
 </head>
 <body>
 
-  <script src="https://www.gstatic.com/firebasejs/3.7.3/firebase.js"></script>
+  <h1>INSY 341 Maps Project</h1>
+
   <script>
-    // Initialize Firebase
-    var config = {
-      apiKey: "AIzaSyAEE88YnS0l_xNAt6atwGU_aoJvMHq9UQY",
-      authDomain: "insy341app.firebaseapp.com",
-      databaseURL: "https://insy341app.firebaseio.com",
-      storageBucket: "insy341app.appspot.com",
-      messagingSenderId: "710447679757"
-    };
-    firebase.initializeApp(config);
+  var jsonObj=
+         [
+           {
+             "address":"123 Fake Street",
+             "name":"Tokyo"
+           },
+           {
+             "address":"456 Fake Street",
+             "name":"Muzique"
+           },
+           {
+             "address":"789 Fake Street",
+             "name":"Cafe Campus"
+           }
+         ]
 
-var firebaseRef = new Firebase('https://insy341app.firebaseio.com/path' );
+  // Declared a global variable which links to the Firebase object
+  var databaseLocation = new Firebase('https://insy341app.firebaseio.com')
 
-var data;
-firebaseRef.on('value',
-  // here we define a function that will be called
-  // every time the database changes, or the page loads
-  function(snapshot){
-    data = snapshot.val();
-    // now the global variable data is the content of path
-    console.log(data);
+  function addData(obj){
+    databaseLocation.push(obj);
+    alert("data saved");
+    // in real app need to use firebase API to get this confirmation
   }
-)
 
-locations = [
-  {
-    'Address' : "234 Fake St.",
-    'Name' : "Tokyo"
-  },
+  addData(jsonObj);
 
-  {
-    'Address' : "6969 Lit Ave.",
-    'Name' : 'Apartment 7000'
+  var venueArray = []
+
+
+var productArray=[];
+
+function readData (){
+  //whenever the data changes, put the data into an array called productArray  and then
+  //call a function displayData to show the information in this array
+  databaseLocation.on("value", function(snapshot) {
+
+            console.log("got snapshot of all objects at this point in time");
+            snapshot.forEach(function(databaseLocation){
+              productArray.push(databaseLocation.val());
+
+            });
+            //alert(JSON.stringify(productArray));
+            displayData(productArray);
+
+
+    });
+
+
+}
+
+function displayData(arr){
+
+  result="";
+
+ for (var i=0;i<arr[0].length;i++){
+   //alert(arr[0][i].name);
+  result=result+arr[0][i].name+"<br>";
   }
-];
-firebaseRef.set(locations)
+  document.getElementById("demo").innerHTML=result;
+
+}
+
+readData();
+
 
   </script>
 
+  <p id = 'demo'>
+    locations
+  </p>
 
-  <h1>INSY 341 Maps Project</h1>
+    <!--
+    <script src="https://www.gstatic.com/firebasejs/3.7.4/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyAEE88YnS0l_xNAt6atwGU_aoJvMHq9UQY",
+        authDomain: "insy341app.firebaseapp.com",
+        databaseURL: "https://insy341app.firebaseio.com",
+        projectId: "insy341app",
+        storageBucket: "insy341app.appspot.com",
+        messagingSenderId: "710447679757"
+      };
+      firebase.initializeApp(config);
+    </script>
+  -->
 
 </body>
+
 </html>
