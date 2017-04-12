@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html>
+  
+<head>
+  <meta charset = "utf-8">
+  <meta name = "viewport" content = "width=device-width, initial-scale = 1">
+  <title>Maps Web App</title>
+</head>
+  
+<body>
+
+  <input type = "text" id = "Address" placeholder= "Address">
+  <br>
+  <input type = "text" id = "Name" placeholder= "Name">
+  <br>
+  <button onclick = "updateData()">Submit</button>
+  
+  
+  
+<!-- START Firebase Initialization -->
+  <script src = "https://www.gstatic.com/firebasejs/3.7.6/firebase.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyB39X0OaEKboHJHAvgSFUsKRyiyImm7K8c",
+      authDomain: "insy-341-final-project.firebaseapp.com",
+      databaseURL: "https://insy-341-final-project.firebaseio.com",
+      projectId: "insy-341-final-project",
+      storageBucket: "insy-341-final-project.appspot.com",
+      messagingSenderId: "392730508310"
+    };
+    firebase.initializeApp(config);
+  </script>
+<!-- END Firebase Initialization -->
+  
+<!-- START General Script -->
+  <script>  
+  
+    // Function to save object onto Firebase
+    function addData(obj){
+      firebase.database().ref("test").push(obj);
+    }
+    // Code for returning if success or error has not been written yet
+    
+    // Function to add user inputs to array
+    function updateData(){
+      var obj = {'List':[{'Address':document.getElementById("Address").value,'Name':document.getElementById("Name").value}]};
+      addData(obj);
+    }
+    
+    // While I can't prove anything, I have a strong feeling that something here is sensitive to
+    // whitespace (or at least linebreaks). For that reason I've left the variable as one long line
+    // without any nice formatting. It's the only way I can get it to work.
+  
+  </script>
+<!-- END General Script -->
+  
+</body>
+  
+</html>
