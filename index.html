@@ -1,10 +1,11 @@
+<!-- Be Careful and make sure it connects to you firebase, I have a root called "list" where its all stored-->
 <!DOCTYPE html>
 
 <html>
   <head>
     <meta charset = "utf-8">
     <meta name = "viewport" content = "width=device-width, initial-scale = 1">
-    <!-- Don't mind the CSS right now, I copy and pasted the CSS from my friend's assignment only so we can see the maps,etc. We can play around with it later -->
+    <!-- Don't mind the CSS right now, we will play with it later-->
     <link type="text/css" rel="stylesheet" href="style.css">
     <title>Maps Web App</title>
     <script src="https://www.gstatic.com/firebasejs/3.7.6/firebase.js"></script>
@@ -21,7 +22,7 @@
           <input id="address" size="40px" placeholder="Address"> <br/>
           <button id="addSpot" onclick="updateData(); loadFirebase(); removeLine();"> Add </button>
           <button id="drawPath" onclick="findPath(markers); drawPath(markers);"> Find Path </button>
-          <!-- TBD removeLine(); findPath(); drawPath(); -->
+          <!-- TBD removeLine(); drawPath(); -->
         </form>
       </div>
       <div id="map"></div>
@@ -70,6 +71,7 @@
     <!-- START General Script -->
     <script type="text/javascript">
       // Creating pins for Google Maps
+      // For some reason, when you load the page, it says google is not defined only HERE though, it works fine for the map and geocoder
       var marker = new google.maps.Marker({
         map: map, //same map variable from above
         position: {lat:x, lng: y}, //where x and y are the lat and long of where the marker will be
@@ -124,8 +126,10 @@
       }
 
 
-// Retrieving data from Firebase SEE WHAT YOU CAN DO HERE ALTHOUGH BECAREFUL TO CHANGE THE gotData function and loadFirebase functions as they are connected to the "add" button
+// Retrieving data from Firebase SEE WHAT YOU CAN DO HERE ALTHOUGH BE CAREFUL TO CHANGE THE gotData function and loadFirebase functions as they are connected to the "add" button
 var database = firebase.database();
+
+//Pulled from here https://www.youtube.com/watch?v=NcewaPfFR6Y
 
 function loadFirebase(){
   firebase.database().ref('list').on('value',gotData,errData);
@@ -135,7 +139,7 @@ function loadFirebase(){
 //This is just for show and to test, we will only print the data from the ORDERED ARRAY once we figure out everything with the markers, etc. b/c he wants the fucking list in path order
 
 function gotData(data){
-  var list =data.val();
+  var list = data.val();
   // allows us to access the keys of each object
   var keys = Object.keys(list);
   var list_html =""
@@ -155,10 +159,34 @@ function gotData(data){
       list_html += "<em>" + location.address + "</em> </br> <button id = 'deleteLocation' onclick = 'remove_location("+i+");location.reload("+i+")'> Delete Event </button> </p>";
     }
     document.getElementById("pathListDisplay").innerHTML = list_html;
-    // Need to get these fuckers(locationArray & locationIds) somehow out of the function
+    // the function works up until this point below me, be sure to keep checking console.log
     console.log(locationArray);
-    console.log(locationIds);
+
+    // tried to add location Sort function here, doesn't work still, the
+    function findRoute(arr){
+      function locationSort(arr){
+        var swap;
+        do {
+          swap = false;
+          // Subtracting 2 because can only do this n-1 times
+          for (var i=0; i<arr.length-1;i++){
+            if (arr[i].lat < arr[i+1].lat){
+              var temp = arr[i];
+              arr[i] = arr[i+1];
+              arr[i+1] = temp;
+              swap = true
+            }
+          }
+        } while (swap);
+      }
+      return locationSort(arr);
+    }
+    sortedArray=[];
+    sortedArray = findRoute(locationArray);
+    // Logs as undefined
+    console.log(sortedArray);
   }
+
   // We still need to add a function that will reset
 
 function errData(err){
@@ -174,8 +202,31 @@ function remove_location(i){
   location.remove()
 }
 
+// Taking latitudes and organizing them from highest to lowest
+// I created it  here and one into the gotData function just to test and see where the problem is
+function findRoute(arr){
+  function locationSort(arr){
+    var swap;
+    do {
+      swap = false;
+      // Subtracting 2 because can only do this n-1 times
+      for (var i=0; i<arr.length-1;i++){
+        if (arr[i].lat < arr[i+1].lat){
+          var temp = arr[i];
+          arr[i] = arr[i+1];
+          arr[i+1] = temp;
+          swap = true
+        }
+      }
+    } while (swap);
+  }
+  return locationSort(arr);
+}
+
     </script>
 
   </body>
 
 </html>
+
+
