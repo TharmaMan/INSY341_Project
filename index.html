@@ -1,111 +1,111 @@
 <!DOCTYPE html>
+
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Maps Web App</title>
-  <script src="https://cdn.firebase.com/js/client/2.2.7/firebase.js"></script>
-</head>
-<body>
+  <head>
+    <meta charset = "utf-8">
+    <meta name = "viewport" content = "width=device-width, initial-scale = 1">
+    <title>Maps Web App</title>
+    <script src="https://www.gstatic.com/firebasejs/3.7.6/firebase.js"></script>
+  </head>
 
-  <h1>INSY 341 Maps Project</h1>
-
-<!-- Added Google Maps API -->
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyChN1QpuN4ctuByivuzOLWDnwWuGFrCwes&callback=initMap"
-  type="text/javascript">
-  
-  </script>
-
-<h3>
-   Venue
-</h3>
-<input type = 'text' id = 'name'> <br>
-<h3>
-  Address
-</h3>
-<input type = 'text' id = 'address'> <br>
-<button onclick = "addData(jsonObj);"> Add </button>
-
-
-
-<script>
-  var jsonObj=
-          [
-            {
-              address: document.getElementById('address').value,
-              name: document.getElementById('name').value
-            }
-          ]
+  <body>
+    <div id="wrapper">
+      <div id="addLocation">
+        <!-- INPUT BUTTONS ON WRAPPER -->
+        <center> <h4>Where To?</h4> </center>
+        <form action="javascript:void(0);" name="form1" id="form1">
+          <input id="name" size="40px" placeholder= "Name"> <br/>
+          <input id="address" size="40px" placeholder="Address"> <br/>
+          <button id="addSpot" onclick="updateData(); readData(); coordConvert(); removeLine();"> Add </button>
+          <button id="drawPath" onclick="findPath(markers); drawPath(markers);"> Find Path </button>
+        </form>
+      </div>
+      <div id="map"></div>
+      <div id="pathList">
+        <h2>Crawl For The Kids</h2>
+        <h3>Here are the <strong>stops</strong> from North to South:</h3>
+        <p id="pathListDisplay"> </p>
+      </div>
+    </div>
 
 
-  // Declared a global variable which links to the Firebase object
-  var databaseLocation = new Firebase('https://insy341app.firebaseio.com')
 
-  function addData(obj){
-    databaseLocation.push(obj);
-    alert("data saved");
-    // in real app need to use firebase API to get this confirmation
+
+    <!-- START Firebase Initialization -->
+    <script src = "https://www.gstatic.com/firebasejs/3.7.6/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyAEE88YnS0l_xNAt6atwGU_aoJvMHq9UQY",
+        authDomain: "insy341app.firebaseapp.com",
+        databaseURL: "https://insy341app.firebaseio.com",
+        projectId: "insy341app",
+        storageBucket: "insy341app.appspot.com",
+        messagingSenderId: "710447679757"
+      };
+      firebase.initializeApp(config);
+    </script>
+    <!-- END Firebase Initialization -->
+
+    <!-- START General Script -->
+    <script type="text/javascript">
+
+      // Creating variables for Firebase
+      var firebaseRef = new firebase.database().ref();
+      var firebaseList = firebase.database().ref("list");
+      var coords = [];
+      var locationArray = [];
+      // locationIDS for deleting spots
+      var locationsIds=[];
+
+      // Function to save object onto Firebase
+      function addData(obj,location){
+        firebase.database().ref(location).push(obj);
+        // Code for returning if success or error has not been written yet
+
+      }
+
+      // Function to add user inputs to array
+      function updateData(){
+        var obj = {
+          'address':document.getElementById("address").value,
+          'name':document.getElementById("name").value
+        }
+        addData(obj,"list");
+      }
+
+      // Retrieving data from Firebase
+
+      //from slides
+      function readData(){
+        var loc=firebase.database().ref();
+        firebase.database().ref().on('value',function(snapshot){
+          console.log("Got a snapshot of all objects at this point in time");
+          snapshot.forEach(function(loc){
+            locationArray.push(loc.val());
+          }
+        );
+        console.log(locationArray[0]);
+        displayData(locationArray);
+      }
+    );
   }
 
-  var venueArray = []
 
 
-  var productArray=[];
+      // Creating function to show array data
+      function displayData(arr){
+        var list_html="";
+        for (var i = 0; i < arr.length; i++) {
+          var location = arr[i];
+          list_html += "<p>" + (i+1)+ ". <strong>" + location.name + ": </strong>";
+          list_html += "<em>" + location.address + "</em> </br> <button id = 'deleteLocation' onclick = 'remove_location("+i+");location.reload("+i+")'> Delete Event </button> </p>";
+        }
+        document.getElementById("pathListDisplay").innerHTML = list_html;
+      }
 
-  function readData (){
-    //whenever the data changes, put the data into an array called productArray  and then
-    //call a function displayData to show the information in this array
-    databaseLocation.on("value", function(snapshot) {
+    </script>
 
-      console.log("got snapshot of all objects at this point in time");
-      snapshot.forEach(function(databaseLocation){
-        productArray.push(databaseLocation.val());
-
-      });
-      //alert(JSON.stringify(productArray));
-      displayData(productArray);
-    });
-  }
-
-  function displayData(arr){
-
-    result="";
-
-    for (var i=0;i<arr[0].length;i++){
-      //alert(arr[0][i].name);
-      result=result+arr[0][i].name+"<br>";
-    }
-    document.getElementById("demo").innerHTML=result;
-
-  }
-
-readData();
-
-</script>
-
-
-<div id = 'demo'>
-  <br> locations
-</div>
-
-<!--
-<script src="https://www.gstatic.com/firebasejs/3.7.4/firebase.js"></script>
-<script>
-// Initialize Firebase
-var config = {
-apiKey: "AIzaSyAEE88YnS0l_xNAt6atwGU_aoJvMHq9UQY",
-authDomain: "insy341app.firebaseapp.com",
-databaseURL: "https://insy341app.firebaseio.com",
-projectId: "insy341app",
-storageBucket: "insy341app.appspot.com",
-messagingSenderId: "710447679757"
-};
-firebase.initializeApp(config);
-</script>
--->
-
-
-</body>
+  </body>
 
 </html>
-
