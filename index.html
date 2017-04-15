@@ -12,94 +12,87 @@
 
 
 
-  <body>
-    <div id="wrapper">
-      <div id="addLocation">
-        <!-- INPUT BUTTONS ON WRAPPER -->
-        <center> <h4>Where To?</h4> </center>
-        <form action="javascript:void(0);" name="form1" id="form1">
-          <input id="name" size="40px" placeholder= "Name"> <br/>
-          <input id="address" size="40px" placeholder="Address"> <br/>
-          <button id="addSpot" onclick="updateData(); loadFirebase(); removeLine();"> Add </button>
-          <button id="drawPath" onclick="findPath(markers); drawPath(markers);"> Find Path </button>
-          <!-- TBD removeLine(); drawPath(); -->
-        </form>
+    <body>
+      <div id="wrapper">
+        <div id="addLocation">
+          <!-- INPUT BUTTONS ON WRAPPER -->
+          <center> <h4>Where To?</h4> </center>
+          <form action="javascript:void(0);" name="form1" id="form1">
+            <input id="name" size="40px" placeholder= "Name"> <br/>
+            <input id="address" size="40px" placeholder="Address"> <br/>
+            <button id="addSpot" onclick="updateData(); loadFirebase(); removeLine();"> Add </button>
+            <button id="drawPath" onclick="loadFirebase();"> Find Path </button>
+            <!-- onclick="findPath(markers); drawPath(markers);" -->
+            <!-- TBD removeLine(); drawPath(); -->
+          </form>
+        </div>
+        <div id="map"></div>
+        <div id="pathList">
+          <h2>Crawl For The Kids</h2>
+          <h3>Here are the <strong>stops</strong> from North to South:</h3>
+          <p id="pathListDisplay"> </p>
+        </div>
       </div>
-      <div id="map"></div>
-      <div id="pathList">
-        <h2>Crawl For The Kids</h2>
-        <h3>Here are the <strong>stops</strong> from North to South:</h3>
-        <p id="pathListDisplay"> </p>
-      </div>
-    </div>
 
-    <!-- START Google Maps Initialization -->
-    <script type="text/javascript">
+      <!-- START Google Maps Initialization -->
+      <script type="text/javascript"> 
+        //Initialize Google Maps
+        var map;
+        function initMap() {
+          map = new google.maps.Map(document.getElementById('map'), { center: {lat: 45.502405, lng: -73.567461},
+                                                                     zoom: 15,
+                                                                     scrollwheel: false
+                                                                    });
+        }
+      </script>
 
-      //Initialize Google Maps
+      <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEE88YnS0l_xNAt6atwGU_aoJvMHq9UQY&callback=initMap"
+              type="text/javascript"></script>
+      <!-- END Google Maps Initialization -->
 
-      var map;
-      function initMap() {
-      map = new google.maps.Map(document.getElementById('map'), { center: {lat: 45.502405, lng: -73.567461},
-      zoom: 15,
-      scrollwheel: false
-      });
-    }
-
-    </script>
-
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEE88YnS0l_xNAt6atwGU_aoJvMHq9UQY&callback=initMap"
-     type="text/javascript"></script>
-    <!-- END Google Maps Initialization -->
-
-    <!-- START Firebase Initialization -->
-    <script src = "https://www.gstatic.com/firebasejs/3.7.6/firebase.js"></script>
-    <script>
-      // Initialize Firebase
-      var config = {
-        apiKey: "AIzaSyAEE88YnS0l_xNAt6atwGU_aoJvMHq9UQY",
-        authDomain: "insy341app.firebaseapp.com",
-        databaseURL: "https://insy341app.firebaseio.com",
-        projectId: "insy341app",
-        storageBucket: "insy341app.appspot.com",
-        messagingSenderId: "710447679757"
-      };
-      firebase.initializeApp(config);
-    </script>
-    <!-- END Firebase Initialization -->
-
-    <!-- START General Script -->
-    <script type="text/javascript">
-      // Creating pins for Google Maps
-      // For some reason, when you load the page, it says google is not defined only HERE though, it works fine for the map and geocoder
-      var marker = new google.maps.Marker({
-        map: map, //same map variable from above
-        position: {lat:x, lng: y}, //where x and y are the lat and long of where the marker will be
-        title: "I'm what people see when they hover over the marker"
-      });
-
-
-      // Function to save object onto Firebase
-      function addData(obj,location){
-        firebase.database().ref(location).push(obj);
-        // Code for returning if success or error has not been written yet
-
-      }
-
-      // Function to add user inputs + geo data to an array
-      function updateData(){
-        var address = document.getElementById("address").value;
-        var name = document.getElementById("name").value;
-        console.log("address="+address);
-        console.log("name="+name);
-        // Following function converts entry into lat and lng
-        coords = {
-          lat:"",
-          lng:""
+      <!-- START Firebase Initialization -->
+      <script src = "https://www.gstatic.com/firebasejs/3.7.6/firebase.js"></script>
+      <script>
+        // Initialize Firebase
+        var config = {
+          apiKey: "AIzaSyB39X0OaEKboHJHAvgSFUsKRyiyImm7K8c",
+          authDomain: "insy-341-final-project.firebaseapp.com",
+          databaseURL: "https://insy-341-final-project.firebaseio.com",
+          projectId: "insy-341-final-project",
+          storageBucket: "insy-341-final-project.appspot.com",
+          messagingSenderId: "392730508310"
         };
-        var geocoder = new google.maps.Geocoder();
+        firebase.initializeApp(config);
+      </script>
+      <!-- END Firebase Initialization -->
 
-        geocoder.geocode({
+      <!-- START General Script -->
+      <script type="text/javascript">
+        // Creating pins for Google Maps
+        // For some reason, when you load the page, it says google is not defined only HERE though, it works fine for the map and geocoder
+        var marker = new google.maps.Marker({
+          map: map, //same map variable from above
+          position: {lat:x, lng: y}, //where x and y are the lat and long of where the marker will be
+          title: "I'm what people see when they hover over the marker"
+        });
+        // Function to save object onto Firebase
+        function addData(obj,location){
+          firebase.database().ref(location).push(obj);
+          // Code for returning if success or error has not been written yet
+        }
+        // Function to add user inputs + geo data to an array
+        function updateData(){
+          var address = document.getElementById("address").value;
+          var name = document.getElementById("name").value;
+          console.log("address="+address);
+          console.log("name="+name);
+          // Following function converts entry into lat and lng
+          coords = {
+            lat:"",
+            lng:""
+          };
+          var geocoder = new google.maps.Geocoder();
+          geocoder.geocode({
             'address': address
           },function(results, status){
             if (status == google.maps.GeocoderStatus.OK){
@@ -108,7 +101,6 @@
               console.log("nameCheck="+name);
               console.log("latCheck="+results[0].geometry.location.lat());
               console.log("lngCheck="+results[0].geometry.location.lng());
-
               // Add object with address,name,lat,lng to database
               var obj = {
                 "address": address,
@@ -122,109 +114,75 @@
               alert("Geocode was not successful for the following reason: " + status);
             }
           }
-        );
-      }
-
-
-// Retrieving data from Firebase SEE WHAT YOU CAN DO HERE ALTHOUGH BE CAREFUL TO CHANGE THE gotData function and loadFirebase functions as they are connected to the "add" button
-var database = firebase.database();
-
-//Pulled from here https://www.youtube.com/watch?v=NcewaPfFR6Y
-
-function loadFirebase(){
-  firebase.database().ref('list').on('value',gotData,errData);
-}
-
-//Grabbing and printing data from array
-function gotData(data){
-  var list = data.val();
-  // allows us to access the keys of each object
-  var keys = Object.keys(list);
-  var list_html =""
-  var locationArray = [];
-  var locationIds = [];
-  console.log(keys);
-  for (var i=0;i<keys.length;i++) {
-      var k = keys[i];
-      var location = list[k];
-      // Storing all locations into an Array
-      locationArray[i] = location;
-      // Storing all object keys into an array for removal
-      locationIds[i] = k;
-      var name = list[k].name;
-      var address = list[k].address;
-      list_html += "<p>" + (i+1)+ ". <strong>" + location.name + ": </strong>";
-      list_html += "<em>" + location.address + "</em> </br> <button id = 'deleteLocation' onclick = 'remove_location("+i+");location.reload("+i+")'> Delete Event </button> </p>";
-    }
-    document.getElementById("pathListDisplay").innerHTML = list_html;
-    // the function works up until this point below me, be sure to keep checking console.log
-    console.log(locationArray);
-
-    // tried to add location Sort function here, doesn't work still, the
-    function findRoute(arr){
-      function locationSort(arr){
-        var swap;
-        do {
-          swap = false;
-          // Subtracting 2 because can only do this n-1 times
-          for (var i=0; i<arr.length-1;i++){
-            if (arr[i].lat < arr[i+1].lat){
-              var temp = arr[i];
-              arr[i] = arr[i+1];
-              arr[i+1] = temp;
-              swap = true
-            }
-          }
-        } while (swap);
-      }
-      return locationSort(arr);
-    }
-    sortedArray=[];
-    sortedArray = findRoute(locationArray);
-    // Logs as undefined
-    console.log(sortedArray);
-  }
-
-  // We still need to add a function that will reset
-
-function errData(err){
-  console.log('Error!');
-  console.log(err);
-}
-
-// Remove location from Firebase need to get the locationIds array
-function remove_location(i){
-  var key = locationIds[i];
-  console.log(locationIds[i]);
-  var location = new Firebase("https://insy341app.firebaseio.com/list/"+key);
-  location.remove()
-}
-
-// Taking latitudes and organizing them from highest to lowest
-// I created it  here and one into the gotData function just to test and see where the problem is
-function findRoute(arr){
-  function locationSort(arr){
-    var swap;
-    do {
-      swap = false;
-      // Subtracting 2 because can only do this n-1 times
-      for (var i=0; i<arr.length-1;i++){
-        if (arr[i].lat < arr[i+1].lat){
-          var temp = arr[i];
-          arr[i] = arr[i+1];
-          arr[i+1] = temp;
-          swap = true
+                          );
         }
-      }
-    } while (swap);
-  }
-  return locationSort(arr);
-}
+        // Retrieving data from Firebase SEE WHAT YOU CAN DO HERE ALTHOUGH BE CAREFUL TO CHANGE THE gotData function and loadFirebase functions as they are connected to the "add" button
+        var database = firebase.database();
+        //Pulled from here https://www.youtube.com/watch?v=NcewaPfFR6Y
+        function loadFirebase(){
+          firebase.database().ref('list').on('value',gotData,errData);
+        }
+        //Grabbing and printing data from array
+        function gotData(data){
+          var list = data.val();
+          // allows us to access the keys of each object
+          var keys = Object.keys(list);
+          var list_html ="";
+          var locationArray = [];
+          var locationIds = [];
+          console.log(keys);
+          for (var i=0;i<keys.length;i++) {
+            var k = keys[i];
+            var location = list[k];
+            // Storing all locations into an Array
+            locationArray[i] = location;
+            // Storing all object keys into an array for removal
+            locationIds[i] = k;
+            var name = list[k].name;
+            var address = list[k].address;
+            list_html += "<p>" + (i+1)+ ". <strong>" + location.name + ": </strong>";
+            list_html += "<em>" + location.address + "</em> </br> <button id = 'deleteLocation' onclick = 'remove_location("+i+");location.reload("+i+")'> Delete Event </button> </p>";
+          }
+          document.getElementById("pathListDisplay").innerHTML = list_html;
+          // the function works up until this point below me, be sure to keep checking console.log
+          console.log(locationArray);
+          // tried to add location Sort function here, doesn't work still, the
+            function locationSort(arr){
+              var swap;
+              do {
+                swap = false;
+                // Subtracting 2 because can only do this n-1 times
+                for (var i=0; i<arr.length-1;i++){
+                  if (arr[i].latitude < arr[i+1].latitude){
+                    var temp = arr[i];
+                    arr[i] = arr[i+1];
+                    arr[i+1] = temp;
+                    swap = true
+                  }
+                }
+              } while (swap);
+              return arr;
+            }
+          
+          var sortedArray =[];
+          sortedArray = locationSort(locationArray);
+          // Logs as undefined NOT ANYMORE IT WORKS NOW
+          console.log(sortedArray);
+        }
+        // We still need to add a function that will reset
+        function errData(err){
+          console.log('Error!');
+          console.log(err);
+        }
+        // Remove location from Firebase need to get the locationIds array
+        function remove_location(i){
+          var key = locationIds[i];
+          console.log(locationIds[i]);
+          var location = new Firebase("https://insy341app.firebaseio.com/list/"+key);
+          location.remove();
+        }
+      </script>
 
-    </script>
+    </body>
 
-  </body>
-
-</html>
-
-
+    </html>
