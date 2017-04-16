@@ -22,8 +22,7 @@
             <input id="name" size="40px" placeholder= "Name"> <br/>
             <input id="address" size="40px" placeholder="Address"> <br/>
             <button id="addSpot" onclick="updateData(); loadFirebase();"> Add </button>
-            <button id="resetList" onclick="resetList();"> Reset </button>
-            <!-- For some reason resetList() logs back as not a function -->
+            <button id="resetButton" onclick="resetList();"> Reset </button>
           </form>
         </div>
         <div id="map"></div>
@@ -62,7 +61,6 @@
             zoom: 15,
             scrollwheel: false
             });
-          //position: myLatlng, where x and y are the lat and long of where the marker will be
           title: "Spot"
       }
       </script>
@@ -76,15 +74,19 @@
         // Function to Purge database of any existing database, connected it to the reset button but its weird
         function resetList(){
           firebase.database().ref("list/").set(null);
-        }
+          alert("Reset List!")
+          document.getElementById('pathListDisplay').innerHTML="";
+          initMap();
+      }
 
-        // Purge database at beginning
-        firebase.database().ref("list/").set("null");
+      // Purge database at start
+      firebase.database().ref("list/").set(null);
+
 
         // Function to save object onto Firebase
         function addData(obj,location){
           firebase.database().ref(location).push(obj);
-          // Code for returning if success or error has not been written yet
+          alert("Spot Added!");
         }
         // Function to add user inputs + geo data to an array
         function updateData(){
@@ -122,9 +124,8 @@
           }
                           );
         }
-        // Retrieving data from Firebase SEE WHAT YOU CAN DO HERE ALTHOUGH BE CAREFUL TO CHANGE THE gotData function and loadFirebase functions as they are connected to the "add" button
-        var database = firebase.database();
-        //Pulled from here https://www.youtube.com/watch?v=NcewaPfFR6Y
+        // Retrieving data from Firebase (slides weren't working)
+        // Pulled from here https://www.youtube.com/watch?v=NcewaPfFR6Y
         function loadFirebase(){
           firebase.database().ref('list').on('value',gotData,errData);
         }
@@ -148,9 +149,7 @@
             var address = list[k].address;
           }
           document.getElementById("pathListDisplay").innerHTML = list_html;
-          // the function works up until this point below me, be sure to keep checking console.log
           console.log(locationArray);
-          // tried to add location Sort function here, doesn't work still, the
             function locationSort(arr){
               var swap;
               do {
