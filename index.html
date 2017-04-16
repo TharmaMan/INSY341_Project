@@ -49,11 +49,9 @@
 
       <!-- START Google Maps Initialization -->
       <script type="text/javascript">
-        // Autocomplete adapted from here 
+        // Autocomplete adapted from here
         // https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
-
         var map, placeSearch, autocomplete, fillInAddress;
-
         // adapted autocomplete within the callback initMap function
         function initMap() {
           var myLatlng = {lat: 45.502405, lng: -73.567461}
@@ -71,7 +69,6 @@
             });
           title: "Spot"
         }
-
           // Bias the autocomplete object to the user's geographical location,
           // as supplied by the browser's 'navigator.geolocation' object.
           function geolocate() {
@@ -89,7 +86,6 @@
                 });
               }
             }
-
       </script>
 
       <!-- API loading here includes the Google Places Library -->
@@ -106,11 +102,8 @@
           document.getElementById('pathListDisplay').innerHTML="";
           initMap();
       }
-
       // Purge database at start
       firebase.database().ref("list/").set(null);
-
-
         // Function to save object onto Firebase
         function addData(obj,location){
           firebase.database().ref(location).push(obj);
@@ -145,13 +138,14 @@
                 "longitude": results[0].geometry.location.lng()
               }
               addData(obj,"list");
+              // resets form inputs after object is added
+              document.getElementById('form1').reset();
             }
             else {
               alert("Geocode was not successful for the following reason: " + status);
             }
           }
         )};
-
         // Retrieving data from Firebase (slides weren't working)
         // Pulled from here https://www.youtube.com/watch?v=NcewaPfFR6Y
         function loadFirebase(){
@@ -237,7 +231,6 @@
             }
             drawPath(markerLatLngArray);
           }
-
         // function for returning errors
         function errData(err){
           console.log('Error!');
@@ -248,3 +241,4 @@
     </body>
 
     </html>
+
