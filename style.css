@@ -36,19 +36,15 @@ button {
   color:white;
   background-color:#607D8B;
 }
-/* Colors are from Google*/
+
 #addSpot {
   background-color:#2196F3;
 }
-#drawPath {
-  background-color:#009688;
-}
-#removePath {
-  background-color:#FF9800;
-}
-#deleteLocation {
+
+#resetList {
   background-color:#F44336;
 }
+
 #pathList {
   position:relative;
   padding:0.5cm;
@@ -57,7 +53,4 @@ button {
 h2,h3, h4 {
   color:#F44336;
 }
-.navtext {
-  font-weight: bold;
-  color:#2196F3;
-}
+
