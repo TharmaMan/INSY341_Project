@@ -1,4 +1,3 @@
-<!-- Be Careful and make sure it connects to you firebase, I have a root called "list" where its all stored-->
 <!DOCTYPE html>
 
 <html>
@@ -11,8 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/3.7.6/firebase.js"></script>
   </head>
 
-
-
     <body>
       <div id="wrapper">
         <div id="addLocation">
@@ -20,7 +17,7 @@
           <center> <h4>Where To?</h4> </center>
           <form action="javascript:void(0);" name="form1" id="form1">
             <input id="name" size="40px" placeholder= "Name"> <br/>
-            <input id="address" size="40px" placeholder="Address"> <br/>
+            <input id="address" onFocus="geolocate();"size="40px" placeholder="Address"> <br/>
             <button id="addSpot" onclick="updateData(); loadFirebase();"> Add </button>
             <button id="resetButton" onclick="resetList();"> Reset </button>
           </form>
@@ -52,20 +49,51 @@
 
       <!-- START Google Maps Initialization -->
       <script type="text/javascript">
-        //Initialize Google Maps
-        var map;
+        // Autocomplete adapted from here 
+        // https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
+
+        var map, placeSearch, autocomplete, fillInAddress;
+
+        // adapted autocomplete within the callback initMap function
         function initMap() {
           var myLatlng = {lat: 45.502405, lng: -73.567461}
+          // Adding autocomplete form
+          autocomplete = new google.maps.places.Autocomplete(
+          /** @type {!HTMLInputElement} */(document.getElementById('address')),
+          {types: ['geocode']});
+          // When the user selects an address from the dropdown, populate the address
+          // fields in the form.
+          autocomplete.addListener('place_changed', fillInAddress);
           map = new google.maps.Map(document.getElementById('map'), {
             center: myLatlng,
             zoom: 15,
             scrollwheel: false
             });
           title: "Spot"
-      }
+        }
+
+          // Bias the autocomplete object to the user's geographical location,
+          // as supplied by the browser's 'navigator.geolocation' object.
+          function geolocate() {
+              if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                  var geolocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                  };
+                  var circle = new google.maps.Circle({
+                    center: geolocation,
+                    radius: position.coords.accuracy
+                  });
+                  autocomplete.setBounds(circle.getBounds());
+                });
+              }
+            }
+
       </script>
 
-      <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEE88YnS0l_xNAt6atwGU_aoJvMHq9UQY&callback=initMap"
+      <!-- API loading here includes the Google Places Library -->
+      <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyArXO4Dc00IbJuc-i3mWfg-THM1KXWSvJY&libraries=places&callback=initMap"
               type="text/javascript"></script>
       <!-- END Google Maps Initialization -->
 
@@ -122,8 +150,8 @@
               alert("Geocode was not successful for the following reason: " + status);
             }
           }
-                          );
-        }
+        )};
+
         // Retrieving data from Firebase (slides weren't working)
         // Pulled from here https://www.youtube.com/watch?v=NcewaPfFR6Y
         function loadFirebase(){
@@ -176,6 +204,8 @@
           }
           list_html+="</ol>"
           document.getElementById("pathListDisplay").innerHTML=list_html;
+          // Reset map before re-adding markers
+          initMap();
           // Adding a marker for each location
           var markers=[];
           var markerLatLngArray=[];
@@ -207,6 +237,8 @@
             }
             drawPath(markerLatLngArray);
           }
+
+        // function for returning errors
         function errData(err){
           console.log('Error!');
           console.log(err);
