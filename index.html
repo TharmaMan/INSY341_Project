@@ -1,4 +1,3 @@
-
 <!-- Be Careful and make sure it connects to you firebase, I have a root called "list" where its all stored-->
 <!DOCTYPE html>
 
@@ -63,11 +62,9 @@
             zoom: 15,
             scrollwheel: false
             });
-
           //position: myLatlng, where x and y are the lat and long of where the marker will be
           title: "Spot"
       }
-
       </script>
 
       <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEE88YnS0l_xNAt6atwGU_aoJvMHq9UQY&callback=initMap"
@@ -76,11 +73,13 @@
 
       <!-- START General Script -->
       <script type="text/javascript">
-
         // Function to Purge database of any existing database, connected it to the reset button but its weird
         function resetList(){
-          firebase.database().ref("list").set(null);
+          firebase.database().ref("list/").set(null);
         }
+
+        // Purge database at beginning
+        firebase.database().ref("list/").set("null");
 
         // Function to save object onto Firebase
         function addData(obj,location){
@@ -168,13 +167,11 @@
               } while (swap);
               return arr;
             }
-
           var sortedArray =[];
           sortedArray = locationSort(locationArray);
           // Logs as undefined NOT ANYMORE IT WORKS NOW
           console.log(sortedArray);
           console.log(sortedArray[1])
-          console.log(sortedArray[1].name)
           for (var i=0; i < sortedArray.length; i++){
             list_html+="<li><strong>"+sortedArray[i].name+"</strong>:  "+sortedArray[i].address+"</li>";
           }
@@ -207,7 +204,6 @@
                 strokeOpacity: 1.0,
                 strokeWeight: 2
               });
-
               path.setMap(map);
             }
             drawPath(markerLatLngArray);
@@ -216,8 +212,6 @@
           console.log('Error!');
           console.log(err);
         }
-
-
       </script>
 
     </body>
