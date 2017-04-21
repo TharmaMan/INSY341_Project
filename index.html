@@ -4,241 +4,238 @@
   <head>
     <meta charset = "utf-8">
     <meta name = "viewport" content = "width=device-width, initial-scale = 1">
-    <!-- Don't mind the CSS right now, we will play with it later-->
     <link type="text/css" rel="stylesheet" href="style.css">
     <title>Maps Web App</title>
     <script src="https://www.gstatic.com/firebasejs/3.7.6/firebase.js"></script>
   </head>
 
-    <body>
-      <div id="wrapper">
-        <div id="addLocation">
-          <!-- INPUT BUTTONS ON WRAPPER -->
-          <center> <h4>Where To?</h4> </center>
-          <form action="javascript:void(0);" name="form1" id="form1">
-            <input id="name" size="40px" placeholder= "Name"> <br/>
-            <input id="address" onFocus="geolocate();"size="40px" placeholder="Address"> <br/>
-            <button id="addSpot" onclick="updateData(); loadFirebase();"> Add </button>
-            <button id="resetButton" onclick="resetList();"> Reset </button>
-          </form>
-        </div>
-        <div id="map"></div>
-        <div id="pathList">
-          <h2>Crawl For The Kids</h2>
-          <h3>Here are the <strong>stops</strong> from North to South:</h3>
-          <p id="pathListDisplay"> </p>
-        </div>
+  <body>
+    <div id="form">
+      <div id="buttons">
+        <!-- INPUT BUTTONS ON FORM -->
+        <center> <h4>Where To?</h4> </center>
+        <form action="javascript:void(0);" name="form1" id="form1">
+          <input id="name" size="40px" placeholder= "Name"> <br/>
+          <input id="address" onFocus="geolocate();"size="40px" placeholder="Address"> <br/>
+          <button id="addButton" onclick="updateData(); loadFirebase();"> Add </button>
+          <button id="resetButton" onclick="resetList();"> Reset </button>
+        </form>
       </div>
+      <div id="map"></div>
+      <div id="lResults">
+        <h2>Night Hops</h2>
+        <h3>Stops from North to South:</h3>
+        <p id="pResults"> </p>
+      </div>
+    </div>
 
 
-      <!-- START Firebase Initialization -->
-      <script src = "https://www.gstatic.com/firebasejs/3.7.6/firebase.js"></script>
-      <script>
-        // Initialize Firebase
-        var config = {
-          apiKey: "AIzaSyAEE88YnS0l_xNAt6atwGU_aoJvMHq9UQY",
-          authDomain: "insy341app.firebaseapp.com",
-          databaseURL: "https://insy341app.firebaseio.com",
-          projectId: "insy341app",
-          storageBucket: "insy341app.appspot.com",
-          messagingSenderId: "710447679757"
-        };
-        firebase.initializeApp(config);
-      </script>
-      <!-- END Firebase Initialization -->
+    <!-- START Firebase Initialization -->
+    <script src = "https://www.gstatic.com/firebasejs/3.7.6/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyAEE88YnS0l_xNAt6atwGU_aoJvMHq9UQY",
+        authDomain: "insy341app.firebaseapp.com",
+        databaseURL: "https://insy341app.firebaseio.com",
+        projectId: "insy341app",
+        storageBucket: "insy341app.appspot.com",
+        messagingSenderId: "710447679757"
+      };
+      firebase.initializeApp(config);
+    </script>
+    <!-- END Firebase Initialization -->
 
-      <!-- START Google Maps Initialization -->
-      <script type="text/javascript">
-        // Autocomplete adapted from here
-        // https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
-        var map, placeSearch, autocomplete, fillInAddress;
-        // adapted autocomplete within the callback initMap function
-        function initMap() {
-          var myLatlng = {lat: 45.502405, lng: -73.567461}
-          // Adding autocomplete form
-          autocomplete = new google.maps.places.Autocomplete(
+    <!-- START Google Maps Initialization -->
+    <script type="text/javascript">
+      // Autocomplete adapted from here
+      // https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
+      var map, placeSearch, autocomplete, fillInAddress;
+      // adapted autocomplete within the callback initMap function
+      function initMap() {
+        var myLatlng = {lat: 45.502405, lng: -73.567461}
+        // Adding autocomplete form
+        autocomplete = new google.maps.places.Autocomplete(
           /** @type {!HTMLInputElement} */(document.getElementById('address')),
           {types: ['geocode']});
-          // When the user selects an address from the dropdown, populate the address
-          // fields in the form.
-          autocomplete.addListener('place_changed', fillInAddress);
-          map = new google.maps.Map(document.getElementById('map'), {
-            center: myLatlng,
-            zoom: 15,
-            scrollwheel: false
+        // When the user selects an address from the dropdown, populate the address
+        // fields in the form.
+        autocomplete.addListener('place_changed', fillInAddress);
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: myLatlng,
+          zoom: 15,
+          scrollwheel: false
+        });
+        title: "Spot"
+      }
+      // Bias the autocomplete object to the user's geographical location,
+      // as supplied by the browser's 'navigator.geolocation' object.
+      function geolocate() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var geolocation = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            var circle = new google.maps.Circle({
+              center: geolocation,
+              radius: position.coords.accuracy
             });
-          title: "Spot"
+            autocomplete.setBounds(circle.getBounds());
+          });
         }
-          // Bias the autocomplete object to the user's geographical location,
-          // as supplied by the browser's 'navigator.geolocation' object.
-          function geolocate() {
-              if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                  var geolocation = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                  };
-                  var circle = new google.maps.Circle({
-                    center: geolocation,
-                    radius: position.coords.accuracy
-                  });
-                  autocomplete.setBounds(circle.getBounds());
-                });
-              }
-            }
-      </script>
+      }
+    </script>
 
-      <!-- API loading here includes the Google Places Library -->
-      <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyArXO4Dc00IbJuc-i3mWfg-THM1KXWSvJY&libraries=places&callback=initMap"
-              type="text/javascript"></script>
-      <!-- END Google Maps Initialization -->
+    <!-- API loading here includes the Google Places Library -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyArXO4Dc00IbJuc-i3mWfg-THM1KXWSvJY&libraries=places&callback=initMap"
+            type="text/javascript"></script>
+    <!-- END Google Maps Initialization -->
 
-      <!-- START General Script -->
-      <script type="text/javascript">
-        // Function to Purge database of any existing database, connected it to the reset button but its weird
-        function resetList(){
-          firebase.database().ref("list/").set(null);
-          alert("Reset List!")
-          document.getElementById('pathListDisplay').innerHTML="";
-          initMap();
+    <!-- START General Script -->
+    <script type="text/javascript">
+      // Function to Purge database of any existing database, connected it to the reset button but its weird
+      function resetList(){
+        firebase.database().ref("list/").set(null);
+        alert("Reset List!")
+        document.getElementById('pResults').innerHTML="";
+        initMap();
       }
       // Purge database at start
       firebase.database().ref("list/").set(null);
-        // Function to save object onto Firebase
-        function addData(obj,location){
-          firebase.database().ref(location).push(obj);
-          alert("Spot Added!");
+      // Function to save object onto Firebase
+      function addData(obj,location){
+        firebase.database().ref(location).push(obj);
+        alert("Spot Added!");
+      }
+      // Function to add user inputs + geo data to an array
+      function updateData(){
+        var address = document.getElementById("address").value;
+        var name = document.getElementById("name").value;
+        console.log("address="+address);
+        console.log("name="+name);
+        // Following function converts entry into lat and lng
+        coords = {
+          lat:"",
+          lng:""
+        };
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({
+          'address': address
+        },function(results, status){
+          if (status == google.maps.GeocoderStatus.OK){
+            console.log(results[0].geometry.location);
+            console.log("addressCheck="+address);
+            console.log("nameCheck="+name);
+            console.log("latCheck="+results[0].geometry.location.lat());
+            console.log("lngCheck="+results[0].geometry.location.lng());
+            // Add object with address,name,lat,lng to database
+            var obj = {
+              "address": address,
+              "name": name,
+              "latitude": results[0].geometry.location.lat(),
+              "longitude": results[0].geometry.location.lng()
+            }
+            addData(obj,"list");
+            // Resets form inputs after object is added
+            document.getElementById('form1').reset();
+          }
+          else {
+            alert("Geocode was not successful for the following reason: " + status);
+          }
         }
-        // Function to add user inputs + geo data to an array
-        function updateData(){
-          var address = document.getElementById("address").value;
-          var name = document.getElementById("name").value;
-          console.log("address="+address);
-          console.log("name="+name);
-          // Following function converts entry into lat and lng
-          coords = {
-            lat:"",
-            lng:""
-          };
-          var geocoder = new google.maps.Geocoder();
-          geocoder.geocode({
-            'address': address
-          },function(results, status){
-            if (status == google.maps.GeocoderStatus.OK){
-              console.log(results[0].geometry.location);
-              console.log("addressCheck="+address);
-              console.log("nameCheck="+name);
-              console.log("latCheck="+results[0].geometry.location.lat());
-              console.log("lngCheck="+results[0].geometry.location.lng());
-              // Add object with address,name,lat,lng to database
-              var obj = {
-                "address": address,
-                "name": name,
-                "latitude": results[0].geometry.location.lat(),
-                "longitude": results[0].geometry.location.lng()
+                        )};
+      // Retrieving data from Firebase (slides weren't working)
+      // Pulled from here https://www.youtube.com/watch?v=NcewaPfFR6Y
+      function loadFirebase(){
+        firebase.database().ref('list').on('value',gotData,errData);
+      }
+      // Grabbing and printing data from array
+      function gotData(data){
+        var list = data.val();
+        // Allows us to access the keys of each object
+        var keys = Object.keys(list);
+        var list_html ="<ol>";
+        var locationArray = [];
+        var locationIds = [];
+        console.log(keys);
+        for (var i=0;i<keys.length;i++) {
+          var k = keys[i];
+          var location = list[k];
+          // Storing all locations into an Array
+          locationArray[i] = location;
+          // Storing all object keys into an array for removal
+          locationIds[i] = k;
+          var name = list[k].name;
+          var address = list[k].address;
+        }
+        document.getElementById("pResults").innerHTML = list_html;
+        console.log(locationArray);
+        function locationSort(arr){
+          var swap;
+          do {
+            swap = false;
+            // Subtracting 2 because can only do this n-1 times
+            for (var i=0; i<arr.length-1;i++){
+              if (arr[i].latitude < arr[i+1].latitude){
+                var temp = arr[i];
+                arr[i] = arr[i+1];
+                arr[i+1] = temp;
+                swap = true
               }
-              addData(obj,"list");
-              // resets form inputs after object is added
-              document.getElementById('form1').reset();
             }
-            else {
-              alert("Geocode was not successful for the following reason: " + status);
-            }
-          }
-        )};
-        // Retrieving data from Firebase (slides weren't working)
-        // Pulled from here https://www.youtube.com/watch?v=NcewaPfFR6Y
-        function loadFirebase(){
-          firebase.database().ref('list').on('value',gotData,errData);
+          } while (swap);
+          return arr;
         }
-        //Grabbing and printing data from array
-        function gotData(data){
-          var list = data.val();
-          // allows us to access the keys of each object
-          var keys = Object.keys(list);
-          var list_html ="<ol>";
-          var locationArray = [];
-          var locationIds = [];
-          console.log(keys);
-          for (var i=0;i<keys.length;i++) {
-            var k = keys[i];
-            var location = list[k];
-            // Storing all locations into an Array
-            locationArray[i] = location;
-            // Storing all object keys into an array for removal
-            locationIds[i] = k;
-            var name = list[k].name;
-            var address = list[k].address;
-          }
-          document.getElementById("pathListDisplay").innerHTML = list_html;
-          console.log(locationArray);
-            function locationSort(arr){
-              var swap;
-              do {
-                swap = false;
-                // Subtracting 2 because can only do this n-1 times
-                for (var i=0; i<arr.length-1;i++){
-                  if (arr[i].latitude < arr[i+1].latitude){
-                    var temp = arr[i];
-                    arr[i] = arr[i+1];
-                    arr[i+1] = temp;
-                    swap = true
-                  }
-                }
-              } while (swap);
-              return arr;
-            }
-          var sortedArray =[];
-          sortedArray = locationSort(locationArray);
-          // Logs as undefined NOT ANYMORE IT WORKS NOW
-          console.log(sortedArray);
-          console.log(sortedArray[1])
-          for (var i=0; i < sortedArray.length; i++){
-            list_html+="<li><strong>"+sortedArray[i].name+"</strong>:  "+sortedArray[i].address+"</li>";
-          }
-          list_html+="</ol>"
-          document.getElementById("pathListDisplay").innerHTML=list_html;
-          // Reset map before re-adding markers
-          initMap();
-          // Adding a marker for each location
-          var markers=[];
-          var markerLatLngArray=[];
-          for (var i=0; i<sortedArray.length; i++){
-              var location = sortedArray[i];
-              var markerLatLng = {lat: location.latitude, lng: location.longitude};
-              var markerinfo = {"address": location.address, "name": location.name, lat: location.latitude, lng: location.longitude};
-              markerLatLngArray[i] = markerLatLng;
-              markers[i] = markerinfo;
-              var marker = new google.maps.Marker({
-                position: markerLatLng,
-                title: location.name,
-                animation: google.maps.Animation.DROP,
-                map: map
-              });
-            }
-            console.log(markerLatLngArray);
-            console.log(markers);
-            // Drawing path
-            function drawPath(sortedPoints){
-              var path = new google.maps.Polyline({
-                path: sortedPoints,
-                geodesic: true,
-                strokeColor: '#FF0000',
-                strokeOpacity: 1.0,
-                strokeWeight: 2
-              });
-              path.setMap(map);
-            }
-            drawPath(markerLatLngArray);
-          }
-        // function for returning errors
-        function errData(err){
-          console.log('Error!');
-          console.log(err);
+        var sortedArray =[];
+        sortedArray = locationSort(locationArray);
+        console.log(sortedArray);
+        console.log(sortedArray[1])
+        for (var i=0; i < sortedArray.length; i++){
+          list_html+="<li><strong>"+sortedArray[i].name+"</strong>:  "+sortedArray[i].address+"</li>";
         }
-      </script>
+        list_html+="</ol>"
+        document.getElementById("pResults").innerHTML=list_html;
+        // Reset map before re-adding markers
+        initMap();
+        // Adding a marker for each location
+        var markers=[];
+        var markerLatLngArray=[];
+        for (var i=0; i<sortedArray.length; i++){
+          var location = sortedArray[i];
+          var markerLatLng = {lat: location.latitude, lng: location.longitude};
+          var markerinfo = {"address": location.address, "name": location.name, lat: location.latitude, lng: location.longitude};
+          markerLatLngArray[i] = markerLatLng;
+          markers[i] = markerinfo;
+          var marker = new google.maps.Marker({
+            position: markerLatLng,
+            title: location.name,
+            animation: google.maps.Animation.DROP,
+            map: map
+          });
+        }
+        console.log(markerLatLngArray);
+        console.log(markers);
+        // Drawing path
+        function drawPath(sortedPoints){
+          var path = new google.maps.Polyline({
+            path: sortedPoints,
+            geodesic: true,
+            strokeColor: '#FF0000',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+          });
+          path.setMap(map);
+        }
+        drawPath(markerLatLngArray);
+      }
+      // Function for returning errors
+      function errData(err){
+        console.log('Error!');
+        console.log(err);
+      }
+    </script>
 
-    </body>
+  </body>
 
-    </html>
-
+</html>
